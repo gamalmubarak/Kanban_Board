@@ -30,6 +30,15 @@ class AuthService {
   logout() {
     // TODO: remove the token from localStorage
     // TODO: redirect to the login page
+    localStorage.removeItem('id_token');
+    window.location.assign('/login'); // Redirect to the login page
+  }
+
+  checkSession() {
+    const token = this.getToken();
+    if (!token || this.isTokenExpired(token)) {
+      this.logout();
+    }
   }
 }
 
