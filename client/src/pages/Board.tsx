@@ -43,7 +43,11 @@ const Board = () => {
   }
 
   useLayoutEffect(() => {
-    checkLogin();
+    if (!auth.loggedIn()) {
+      window.location.assign('/login');
+    } else {
+      fetchTickets();
+    }
   }, []);
 
   useEffect(() => {
