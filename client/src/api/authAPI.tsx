@@ -2,14 +2,15 @@ import { UserLogin } from "../interfaces/UserLogin";
 
 const login = async (userInfo: UserLogin) => {
   // TODO: make a POST request to the login route
-  try // Send a POST request to '/auth/login' with user login information in JSON format
+  try 
 {
-// Send a POST request to '/auth/login' with user login information in JSON format
-    const response = await fetch('/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userInfo),
-    });
+    // Make a POST request to the login route with the user credentials
+    // Replace 'https://your-server-url.onrender.com' with your actual server URL
+const response = await fetch('https://your-server-url.onrender.com/auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(userInfo),
+});
 
     // Check if the response is ok (status code 200-299)
     // If not, throw an error
