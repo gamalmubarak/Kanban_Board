@@ -15,10 +15,14 @@ const Board = () => {
   const [tickets, setTickets] = useState<TicketData[]>([]);
   const [error, setError] = useState(false);
   const [loginCheck, setLoginCheck] = useState(false);
+  const [filter, setFilter] = useState('');
+  const [sortBy, setSortBy] = useState<'name' | 'status'>('name');
 
   const checkLogin = () => {
-    if(auth.loggedIn()) {
+    if (auth.loggedIn()) {
       setLoginCheck(true);
+    } else {
+      window.location.assign('/login');
     }
   };
 
@@ -32,7 +36,7 @@ const Board = () => {
     }
   };
 
-  const deleteIndvTicket = async (ticketId: number) : Promise<ApiMessage> => {
+  const deleteIndvTicket = async (ticketId: number): Promise<ApiMessage> => {
     try {
       const data = await deleteTicket(ticketId);
       fetchTickets();
@@ -40,18 +44,26 @@ const Board = () => {
     } catch (err) {
       return Promise.reject(err);
     }
-  }
+  };
+
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilter(e.target.value);
+  };
+
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSortBy(e.target.value as 'name' | 'status');
+  };
+
+  const filteredTickets = tickets
+    .filter(ticket => ticket.name?.toLowerCase().includes(filter.toLowerCase()))
+    .sort((a, b) => (a[sortBy] || '').localeCompare(b[sortBy] || ''));
 
   useLayoutEffect(() => {
-    if (!auth.loggedIn()) {
-      window.location.assign('/login');
-    } else {
-      fetchTickets();
-    }
+    checkLogin();
   }, []);
 
   useEffect(() => {
-    if(loginCheck) {
+    if (loginCheck) {
       fetchTickets();
     }
   }, [loginCheck]);
@@ -62,36 +74,45 @@ const Board = () => {
 
   return (
     <>
-    {
-      !loginCheck ? (
-        <div className='login-notice'>
-          <h1>
-            Login to create & view tickets
-          </h1>
-        </div>  
+      {!loginCheck ? (
+        <div className="login-notice">
+          <h1>Login to create & view tickets</h1>
+        </div>
       ) : (
-          <div className='board'>
-            <button type='button' id='create-ticket-link'>
-              <Link to='/create' >New Ticket</Link>
-            </button>
-            <div className='board-display'>
-              {boardStates.map((status) => {
-                const filteredTickets = tickets.filter(ticket => ticket.status === status);
-                return (
-                  <Swimlane 
-                    title={status} 
-                    key={status} 
-                    tickets={filteredTickets} 
-                    deleteTicket={deleteIndvTicket}
-                  />
-                );
-              })}
-            </div>
+        <div className="board">
+          <div className="controls">
+            <input
+              type="text"
+              placeholder="Filter tickets"
+              value={filter}
+              onChange={handleFilterChange}
+            />
+            <select value={sortBy} onChange={handleSortChange}>
+              <option value="name">Sort by Name</option>
+              <option value="status">Sort by Status</option>
+            </select>
           </div>
-        )
-    }
+          <button type="button" id="create-ticket-link">
+            <Link to="/create">New Ticket</Link>
+          </button>
+          <div className="board-display">
+            {boardStates.map(status => {
+              const filteredByStatus = filteredTickets.filter(
+                ticket => ticket.status === status
+              );
+              return (
+                <Swimlane
+                  title={status}
+                  key={status}
+                  tickets={filteredByStatus}
+                  deleteTicket={deleteIndvTicket}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
     </>
   );
 };
-
 export default Board;
