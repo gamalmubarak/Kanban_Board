@@ -7,7 +7,12 @@ interface JwtPayload {
 
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
   // TODO: verify the token exists and add the user data to the request object
-  const token = req.headers.authorization?.split(' ')[1];
+  const authHeader = req.headers['authorization']
+  if(!authHeader) {
+    return void res.status(403).json({ message: "No Authorization Header" });
+  }
+  const token = (authHeader! as string).split(' ')[1];
+  
   if (!token) {
     return res.status(401).json({ message: 'Access token is missing or invalid' });
   }
