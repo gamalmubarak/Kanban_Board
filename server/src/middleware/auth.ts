@@ -7,23 +7,26 @@ interface JwtPayload {
 
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
   // TODO: verify the token exists and add the user data to the request object
-  const authHeader = req.headers['authorization']
-  if(!authHeader) {
-    return void res.status(403).json({ message: "No Authorization Header" });
-  }
-  const token = (authHeader! as string).split(' ')[1];
-  
-  if (!token) {
-    return res.status(401).json({ message: 'Access token is missing or invalid' });
-  }
+  const authHeader = req.headers.authorization;
+   // Check if the authorization header is present
+   if (authHeader) {
+    // Extract the token from the authorization header
+    const token = authHeader.split(' ')[1];
 
-  try {
+    // Get the secret key from the environment variables
     const secretKey = process.env.JWT_SECRET_KEY || '';
-    const decoded = jwt.verify(token, secretKey) as JwtPayload;
-    req.user = { username: decoded.username };
-    next();
-    return;
-  } catch (error) {
-    return res.status(403).json({ message: 'Invalid or expired token' });
+
+    // Verify the JWT token
+    jwt.verify(token, secretKey, (err, user) => {
+      if (err) {
+        return res.sendStatus(403); // Send forbidden status if the token is invalid
+      }
+
+      // Attach the user information to the request object
+      req.user = user as JwtPayload;
+      return next(); // Call the next middleware function
+    });
+  } else {
+    res.sendStatus(401); // Send unauthorized status if no authorization header is present
   }
 };
