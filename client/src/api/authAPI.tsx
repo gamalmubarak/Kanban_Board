@@ -6,7 +6,7 @@ const login = async (userInfo: UserLogin) => {
 {
     // Make a POST request to the login route with the user credentials
     // Replace 'https://your-server-url.onrender.com' with your actual server URL
-const response = await fetch('https://your-server-url.onrender.com/auth/login', {
+const response = await fetch('/auth/login', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify(userInfo),
