@@ -21,8 +21,7 @@ const Board = () => {
   const checkLogin = () => {
     if (auth.loggedIn()) {
       setLoginCheck(true);
-    } else {
-      window.location.assign('/login');
+   
     }
   };
 
